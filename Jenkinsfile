@@ -26,7 +26,7 @@ pipeline {
 
         stage('Create environment') {
             steps {
-		whitPythonEnv('python3') {
+		withPythonEnv('python3') {
                 	echo "Building virtualenv"
 			sh  ''' python3 -m venv venv
 		          	  source venv/bin/activate
