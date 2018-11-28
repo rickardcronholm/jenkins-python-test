@@ -39,19 +39,19 @@ pipeline {
         stage('Static code metrics') {
             steps {
                 echo "Raw metrics"
-                sh  ''' source activate ${BUILD_TAG}
+                sh  ''' . ./venv/bin/activate
                         radon raw --json irisvmpy > raw_report.json
                         radon cc --json irisvmpy > cc_report.json
                         radon mi --json irisvmpy > mi_report.json
                         sloccount --duplicates --wide irisvmpy > sloccount.sc
                     '''
                 echo "Test coverage"
-                sh  ''' source activate ${BUILD_TAG}
+                sh  ''' . ./venv/bin/activate
                         coverage run irisvmpy/iris.py 1 1 2 3
                         python -m coverage xml -o reports/coverage.xml
                     '''
                 echo "Style check"
-                sh  ''' source activate ${BUILD_TAG}
+                sh  ''' . ./venv/bin/activate
                         pylint irisvmpy || true
                     '''
             }
@@ -76,7 +76,7 @@ pipeline {
 
         stage('Unit tests') {
             steps {
-                sh  ''' source activate ${BUILD_TAG}
+                sh  ''' . ./venv/bin/activate
                         python -m pytest --verbose --junit-xml reports/unit_tests.xml
                     '''
             }
@@ -90,7 +90,7 @@ pipeline {
 
         stage('Acceptance tests') {
             steps {
-                sh  ''' source activate ${BUILD_TAG}
+                sh  ''' . ./venv/bin/activate
                         behave -f=formatters.cucumber_json:PrettyCucumberJSONFormatter -o ./reports/acceptance.json || true
                     '''
             }
@@ -112,7 +112,7 @@ pipeline {
                 }
             }
             steps {
-                sh  ''' source activate ${BUILD_TAG}
+                sh  ''' . ./venv/bin/activate
                         python setup.py bdist_wheel
                     '''
             }
