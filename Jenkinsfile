@@ -25,13 +25,13 @@ pipeline {
         }
 
         stage('Build environment') {
-	    withPythonEnv('python3') {
-            	steps {
+            steps {
+		whitPythonEnv('python3') {
                 	echo "Building virtualenv"
-			sh  ''' python3 -m venv venv
-		        	source venv/bin/activate
-		        	pip install -r requirements/dev.txt
-			    '''
+			bash  ''' python3 -m venv venv
+		          	  source venv/bin/activate
+		        	  pip install -r requirements/dev.txt
+			      '''
 		}
             }
         }
