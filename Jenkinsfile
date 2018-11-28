@@ -38,22 +38,24 @@ pipeline {
 
         stage('Static code metrics') {
             steps {
-                echo "Raw metrics"
-                sh  ''' . ./venv/bin/activate
-                        radon raw --json irisvmpy > raw_report.json
-                        radon cc --json irisvmpy > cc_report.json
-                        radon mi --json irisvmpy > mi_report.json
-                        sloccount --duplicates --wide irisvmpy > sloccount.sc
-                    '''
-                echo "Test coverage"
-                sh  ''' . ./venv/bin/activate
-                        coverage run irisvmpy/iris.py 1 1 2 3
-                        python -m coverage xml -o reports/coverage.xml
-                    '''
-                echo "Style check"
-                sh  ''' . ./venv/bin/activate
-                        pylint irisvmpy || true
-                    '''
+		withPythonEnv('python3') {
+	                echo "Raw metrics"
+        	        sh  ''' . ./venv/bin/activate
+                	        radon raw --json irisvmpy > raw_report.json
+                        	radon cc --json irisvmpy > cc_report.json
+	                        radon mi --json irisvmpy > mi_report.json
+        	                sloccount --duplicates --wide irisvmpy > sloccount.sc
+                	    '''
+	                echo "Test coverage"
+        	        sh  ''' . ./venv/bin/activate
+                	        coverage run irisvmpy/iris.py 1 1 2 3
+                        	python -m coverage xml -o reports/coverage.xml
+	                    '''
+        	        echo "Style check"
+                	sh  ''' . ./venv/bin/activate
+                        	pylint irisvmpy || true
+	                    '''
+		}
             }
             post{
                 always{
@@ -76,9 +78,11 @@ pipeline {
 
         stage('Unit tests') {
             steps {
-                sh  ''' . ./venv/bin/activate
-                        python -m pytest --verbose --junit-xml reports/unit_tests.xml
-                    '''
+		withPythonEnv('python3') {
+	               sh  ''' . ./venv/bin/activate
+        	               python -m pytest --verbose --junit-xml reports/unit_tests.xml
+                	   '''
+		}
             }
             post {
                 always {
@@ -90,9 +94,11 @@ pipeline {
 
         stage('Acceptance tests') {
             steps {
-                sh  ''' . ./venv/bin/activate
-                        behave -f=formatters.cucumber_json:PrettyCucumberJSONFormatter -o ./reports/acceptance.json || true
-                    '''
+		withPythonEnv('python3') {
+	               sh  ''' . ./venv/bin/activate
+        	               behave -f=formatters.cucumber_json:PrettyCucumberJSONFormatter -o ./reports/acceptance.json || true
+                	   '''
+		}
             }
             post {
                 always {
@@ -112,9 +118,11 @@ pipeline {
                 }
             }
             steps {
-                sh  ''' . ./venv/bin/activate
-                        python setup.py bdist_wheel
-                    '''
+		withPythonEnv('python3') {
+	               sh  ''' . ./venv/bin/activate
+        	               python setup.py bdist_wheel
+                	   '''
+		}
             }
             post {
                 always {
@@ -134,7 +142,7 @@ pipeline {
 
     post {
         always {
-            sh 'conda remove --yes -n ${BUILD_TAG} --all'
+            echo "I really should remove venv"
         }
         failure {
             emailext (
