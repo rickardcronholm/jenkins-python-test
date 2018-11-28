@@ -25,12 +25,14 @@ pipeline {
         }
 
         stage('Build environment') {
-            steps {
-                echo "Building virtualenv"
-		sh  ''' python3 -m venv ${BUILD_TAG}
-		        source ${BUILD_TAG}/bin/activate
-		        pip install -r requirements/dev.txt
-		    '''
+	    withPythonEnv('python3') {
+            	steps {
+                	echo "Building virtualenv"
+			sh  ''' python3 -m venv venv
+		        	source venv/bin/activate
+		        	pip install -r requirements/dev.txt
+			    '''
+		}
             }
         }
 
